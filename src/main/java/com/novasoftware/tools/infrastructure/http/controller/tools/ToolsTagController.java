@@ -258,12 +258,8 @@ public class ToolsTagController extends BaseController implements Initializable 
 
             int quantityToSend = calculateQuantityToSend(totalQuantity, columns);
             boolean quantityExceedsLimit = quantityToSend > 50;
-            if (quantityExceedsLimit) {
-                quantityToSend = 1;
-                CustomAlert.showErrorAlert(stage, "Atenção", "A quantidade de etiquetas excede o limite da API. Apenas 1 etiqueta será gerada para visualização.");
-            }
 
-            String zpl = labelGenerator.generateZpl(
+            String fullZpl = labelGenerator.generateZpl(
                     List.of(Map.of(
                             "EAN", eanField.getText(),
                             "SKU", skuField.getText(),
@@ -273,10 +269,24 @@ public class ToolsTagController extends BaseController implements Initializable 
                     labelTypeComboBox.getValue()
             );
 
+            outputArea.setText(fullZpl);
+            int quantityForImage = quantityExceedsLimit ? 1 : quantityToSend;
+
+            String zplForImage = labelGenerator.generateZpl(
+                    List.of(Map.of(
+                            "EAN", eanField.getText(),
+                            "SKU", skuField.getText(),
+                            "Quantidade", String.valueOf(quantityForImage)
+                    )),
+                    format,
+                    labelTypeComboBox.getValue()
+            );
+
             labelDpmm.setValue(labelDpmm.getValue() != null ? labelDpmm.getValue() : LabelFormat.PRINTER_DENSITY_8DPMM.getValue());
             labelDimension.setValue(labelDimension.getValue() != null ? labelDimension.getValue() : LabelFormat.LABEL_DIMENSIONS_3X2.getValue());
+
             byte[] imageBytes = LabelaryClient.sendZplToLabelary(
-                    zpl,
+                    zplForImage,
                     labelDpmm.getValue(),
                     labelDimension.getValue(),
                     LabelFormat.LABEL_INDEX_0.getValue(),
@@ -306,18 +316,15 @@ public class ToolsTagController extends BaseController implements Initializable 
                 downloadLabelPDF.setVisible(true);
             }
 
-            if (zplFileService.validateZplContent(zpl)) {
-                outputArea.setText(zpl);
-                saveButton.setDisable(false);
-            }
+            saveButton.setDisable(!zplFileService.validateZplContent(fullZpl));
+
         } catch (IllegalArgumentException e) {
             CustomAlert.showErrorAlert(stage, "Ocorreu um erro", "Erro de validação");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     @FXML
     private void saveZplToFile() {
