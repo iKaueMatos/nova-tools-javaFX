@@ -15,24 +15,24 @@ import java.util.List;
 public class ProductMapper {
     public static List<Object> mapToValues(ProductData product) {
         List<Object> values = new ArrayList<>();
-        values.add(product.name());
-        values.add(product.sku());
-        values.add(product.variationSku());
-        values.add(product.ean());
-        values.add(product.quantity());
-        values.add(product.salePrice());
+        values.add(product.getName());
+        values.add(product.getSku());
+        values.add(product.getVariationSku());
+        values.add(product.getEan());
+        values.add(product.getEan());
+        values.add(product.getSalePrice());
 
-        values.add(product.category() != null ? product.category().getId() : null);
-        values.add(product.expiryDate());
-        values.add(product.supplier() != null ? product.supplier().getId() : null);
-        values.add(product.weight());
+        values.add(product.getCategory() != null ? product.getCategory().getId() : null);
+        values.add(product.getExpiryDate());
+        values.add(product.getSupplier() != null ? product.getSupplier().getId() : null);
+        values.add(product.getWeight());
 
-        values.add(product.images() != null ? String.join(",", product.images()) : null);
-        values.add(product.creationDate());
-        values.add(product.lastUpdatedDate());
-        values.add(product.error());
-        values.add(product.brand() != null ? product.brand().getId() : null);
-        values.add(product.description());
+        values.add(product.getImages() != null ? String.join(",", product.getImages()) : null);
+        values.add(product.getCreationDate());
+        values.add(product.getLastUpdatedDate());
+        values.add(product.getError());
+        values.add(product.getBrand() != null ? product.getBrand().getId() : null);
+        values.add(product.getDescription());
 
         return values;
     }

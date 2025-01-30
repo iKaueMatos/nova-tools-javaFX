@@ -252,23 +252,29 @@ public class ToolsTagController extends BaseController implements Initializable 
     @FXML
     private void generateLabel() {
         try {
+            int totalQuantity = Integer.parseInt(quantityField.getText());
+            String format = formatFieldComboBox.getValue();
+            int columns = getNumberOfColumns(format);
+
+            int quantityToSend = calculateQuantityToSend(totalQuantity, columns);
+            boolean quantityExceedsLimit = quantityToSend > 50;
+            if (quantityExceedsLimit) {
+                quantityToSend = 1;
+                CustomAlert.showErrorAlert(stage, "Atenção", "A quantidade de etiquetas excede o limite da API. Apenas 1 etiqueta será gerada para visualização.");
+            }
+
             String zpl = labelGenerator.generateZpl(
                     List.of(Map.of(
                             "EAN", eanField.getText(),
                             "SKU", skuField.getText(),
-                            "Quantidade", quantityField.getText()
+                            "Quantidade", String.valueOf(quantityToSend)
                     )),
-                    formatFieldComboBox.getValue(),
+                    format,
                     labelTypeComboBox.getValue()
             );
 
             labelDpmm.setValue(labelDpmm.getValue() != null ? labelDpmm.getValue() : LabelFormat.PRINTER_DENSITY_8DPMM.getValue());
             labelDimension.setValue(labelDimension.getValue() != null ? labelDimension.getValue() : LabelFormat.LABEL_DIMENSIONS_3X2.getValue());
-
-            if (Integer.parseInt(quantityField.getText()) > 50) {
-                CustomAlert.showErrorAlert(stage, "Ocorreu um erro", "A quantidade inserida não pode ser maior que 50.");
-            }
-
             byte[] imageBytes = LabelaryClient.sendZplToLabelary(
                     zpl,
                     labelDpmm.getValue(),
@@ -375,6 +381,25 @@ public class ToolsTagController extends BaseController implements Initializable 
             }
         } catch (IOException e) {
             CustomAlert.showErrorAlert(stage, "Erro ao salvar", "Ocorreu um erro interno do servidor");
+        }
+    }
+
+    private int calculateQuantityToSend(int totalQuantity, int columns) {
+        return (int) Math.ceil((double) totalQuantity / columns);
+    }
+
+    private int getNumberOfColumns(String format) {
+        switch (format) {
+            case LabelConstants.FORMAT_1_COLUMN:
+                return 1;
+            case LabelConstants.FORMAT_2_COLUMNS:
+                return 2;
+            case LabelConstants.FORMAT_4_LABELS:
+                return 4;
+            case LabelConstants.FORMAT_CUSTOM_SHIPPING:
+                return 1;
+            default:
+                return 1;
         }
     }
 }

@@ -156,12 +156,12 @@ public class SpreadsheetController implements Initializable {
                     List<Map<String, Object>> mappedData = productList.stream()
                             .map(product -> {
                                 Map<String, Object> map = new HashMap<>();
-                                map.put("Nome", product.name());
-                                map.put("SKU", product.sku());
-                                map.put("SKU_VARIACAO", product.variationSku());
-                                map.put("GTIN", product.ean());
-                                map.put("Quantidade", product.quantity());
-                                map.put("Marca", product.brand().getName());
+                                map.put("Nome", product.getName());
+                                map.put("SKU", product.getSku());
+                                map.put("SKU_VARIACAO", product.getVariationSku());
+                                map.put("GTIN", product.getEan());
+                                map.put("Quantidade", product.getQuantity());
+                                map.put("Marca", product.getBrand().getName());
                                 return map;
                             })
                             .collect(Collectors.toList());

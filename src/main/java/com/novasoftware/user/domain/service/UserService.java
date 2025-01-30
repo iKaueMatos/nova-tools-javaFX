@@ -82,10 +82,10 @@ public class UserService {
             return false;
         }
 
-        Optional<User> userOptional = tokenRepository.findUserByToken(forgotUserPassword.token());
+        Optional<User> userOptional = tokenRepository.findUserByToken(forgotUserPassword.getToken());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setPassword(encodePassword(forgotUserPassword.newPassword()));
+            user.setPassword(encodePassword(forgotUserPassword.getNewPassword()));
             userRepository.update(user);
             return true;
         }
@@ -141,10 +141,10 @@ public class UserService {
 
     private boolean isPasswordResetRequestValid(ForgotUserPassword forgotUserPassword) {
         return forgotUserPassword != null &&
-                forgotUserPassword.token() != null &&
-                !forgotUserPassword.token().isEmpty() &&
-                forgotUserPassword.newPassword() != null &&
-                !forgotUserPassword.newPassword().isEmpty();
+                forgotUserPassword.getToken() != null &&
+                !forgotUserPassword.getToken().isEmpty() &&
+                forgotUserPassword.getNewPassword() != null &&
+                !forgotUserPassword.getNewPassword().isEmpty();
     }
 
     private void sendNotification(String title, String message, boolean isSuccess) {
