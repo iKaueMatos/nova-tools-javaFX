@@ -14,8 +14,8 @@ import java.util.Properties;
 
 public class EmailService {
     private JavaMailSender sender;
-    private String senderEmail = "novasoftwareorganization@gmail.com";
-    private String senderPassword = "uhmczwarlshtektl";
+    private String senderEmail = "";
+    private String senderPassword = "";
 
     public EmailService() {
         this.sender = createJavaMailSender();
