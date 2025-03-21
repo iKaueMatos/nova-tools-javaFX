@@ -8,11 +8,9 @@ module com.novasoftware {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires com.almasb.fxgl.all;
     requires MaterialFX;
     requires javafx.controls;
     requires javafx.fxml;
-    requires org.kordamp.ikonli.materialdesign2;
     requires java.net.http;
     requires java.prefs;
     requires com.google.protobuf;
@@ -22,6 +20,7 @@ module com.novasoftware {
     requires spring.security.crypto;
     requires spring.context.support;
     requires freemarker;
+    requires javafx.graphics;
 
     exports com.novasoftware.tools.domain.model to javafx.fxml;
     exports com.novasoftware.tools.domain.service to javafx.fxml;

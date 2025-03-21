@@ -252,13 +252,33 @@ public class ToolsTagController extends BaseController implements Initializable 
     @FXML
     private void generateLabel() {
         try {
-            String zpl = labelGenerator.generateZpl(
+            int totalQuantity = Integer.parseInt(quantityField.getText());
+            String format = formatFieldComboBox.getValue();
+            int columns = getNumberOfColumns(format);
+
+            int quantityToSend = calculateQuantityToSend(totalQuantity, columns);
+            boolean quantityExceedsLimit = quantityToSend > 50;
+
+            String fullZpl = labelGenerator.generateZpl(
                     List.of(Map.of(
                             "EAN", eanField.getText(),
                             "SKU", skuField.getText(),
-                            "Quantidade", quantityField.getText()
+                            "Quantidade", String.valueOf(quantityToSend)
                     )),
-                    formatFieldComboBox.getValue(),
+                    format,
+                    labelTypeComboBox.getValue()
+            );
+
+            outputArea.setText(fullZpl);
+            int quantityForImage = quantityExceedsLimit ? 1 : quantityToSend;
+
+            String zplForImage = labelGenerator.generateZpl(
+                    List.of(Map.of(
+                            "EAN", eanField.getText(),
+                            "SKU", skuField.getText(),
+                            "Quantidade", String.valueOf(quantityForImage)
+                    )),
+                    format,
                     labelTypeComboBox.getValue()
             );
 
@@ -266,7 +286,7 @@ public class ToolsTagController extends BaseController implements Initializable 
             labelDimension.setValue(labelDimension.getValue() != null ? labelDimension.getValue() : LabelFormat.LABEL_DIMENSIONS_3X2.getValue());
 
             byte[] imageBytes = LabelaryClient.sendZplToLabelary(
-                    zpl,
+                    zplForImage,
                     labelDpmm.getValue(),
                     labelDimension.getValue(),
                     LabelFormat.LABEL_INDEX_0.getValue(),
@@ -296,18 +316,15 @@ public class ToolsTagController extends BaseController implements Initializable 
                 downloadLabelPDF.setVisible(true);
             }
 
-            if (zplFileService.validateZplContent(zpl)) {
-                outputArea.setText(zpl);
-                saveButton.setDisable(false);
-            }
+            saveButton.setDisable(!zplFileService.validateZplContent(fullZpl));
+
         } catch (IllegalArgumentException e) {
             CustomAlert.showErrorAlert(stage, "Ocorreu um erro", "Erro de validação");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     @FXML
     private void saveZplToFile() {
@@ -371,6 +388,25 @@ public class ToolsTagController extends BaseController implements Initializable 
             }
         } catch (IOException e) {
             CustomAlert.showErrorAlert(stage, "Erro ao salvar", "Ocorreu um erro interno do servidor");
+        }
+    }
+
+    private int calculateQuantityToSend(int totalQuantity, int columns) {
+        return (int) Math.ceil((double) totalQuantity / columns);
+    }
+
+    private int getNumberOfColumns(String format) {
+        switch (format) {
+            case LabelConstants.FORMAT_1_COLUMN:
+                return 1;
+            case LabelConstants.FORMAT_2_COLUMNS:
+                return 2;
+            case LabelConstants.FORMAT_4_LABELS:
+                return 4;
+            case LabelConstants.FORMAT_CUSTOM_SHIPPING:
+                return 1;
+            default:
+                return 1;
         }
     }
 }

@@ -2,7 +2,7 @@ package com.novasoftware.user.infrastructure.email.service;
 
 import com.novasoftware.user.infrastructure.email.strategy.EmailTemplateData;
 import com.novasoftware.user.infrastructure.email.strategy.EmailTemplateStrategy;
-import jakarta.mail.*;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
